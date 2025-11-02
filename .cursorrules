@@ -1,0 +1,305 @@
+# Blood Pressure Tracker - Development Rules
+
+## Project Context
+Healthcare application for blood pressure tracking with diet and exercise logging.
+Built with Next.js 15, React 19, Supabase, TypeScript, and shadcn/ui.
+
+## Tech Stack & Versions
+- **Next.js**: 15.x (App Router)
+- **React**: 19.x
+- **TypeScript**: 5.6+ (strict mode)
+- **Supabase**: Latest (@supabase/ssr for Next.js integration)
+- **Tailwind CSS**: 4.x
+- **shadcn/ui**: Latest components
+- **Recharts**: For data visualization
+
+## Architecture Patterns
+
+### Next.js 15 Best Practices
+1. **Server Components by Default**
+   - All components are Server Components unless marked with `'use client'`
+   - Place `'use client'` directive at the top of files, before imports
+   - Minimize client components to reduce bundle size
+
+2. **Server Actions for Mutations**
+   - Use Server Actions instead of API routes for all data mutations
+   - Define inline with `'use server'` or in separate files
+   - Always validate input with Zod schemas
+   - Return typed responses: `{ success: boolean; data?: T; error?: string }`
+
+3. **Data Fetching Strategies**
+   ```typescript
+   // Static (default)
+   fetch(url, { cache: 'force-cache' })
+   
+   // Dynamic (per-request)
+   fetch(url, { cache: 'no-store' })
+   
+   // Revalidated (ISR)
+   fetch(url, { next: { revalidate: 60 } })
+   ```
+
+4. **Request Data Access**
+   - Use `cookies()` and `headers()` from `next/headers`
+   - Always await these functions: `await cookies()`, `await headers()`
+
+5. **Streaming & Suspense**
+   - Wrap async components in `<Suspense>` with fallback UI
+   - Use loading.tsx for route-level loading states
+   - Implement progressive rendering for better UX
+
+6. **Parallel Data Fetching**
+   - Fetch data in parallel to reduce waterfalls
+   - Use `Promise.all()` for independent requests
+
+### React 19 Features
+1. **`use()` Hook**
+   - Unwrap promises directly in components
+   - Works with Suspense for streaming
+
+2. **`useFormStatus()`**
+   - Access form pending state without prop drilling
+   - Must be used in child components of `<form>`
+   ```typescript
+   const { pending, data, method, action } = useFormStatus()
+   ```
+
+3. **`useOptimistic()`**
+   - Provide instant UI feedback before server confirmation
+   ```typescript
+   const [optimisticState, addOptimistic] = useOptimistic(state, updateFn)
+   ```
+
+4. **`useActionState()`**
+   - Manage form state with server actions
+   ```typescript
+   const [state, formAction] = useActionState(serverAction, initialState)
+   ```
+
+### Supabase Integration
+
+1. **Authentication**
+   - Use `@supabase/ssr` for cookie-based sessions
+   - Create separate clients for server and client contexts
+   - Implement middleware for protected routes
+
+2. **Row Level Security (RLS)**
+   - Enable RLS on ALL tables
+   - Create policies using `auth.uid()` for user isolation
+   - Use `auth.jwt()` for advanced claims-based access
+   - Example policy:
+   ```sql
+   CREATE POLICY "Users can only access their own data"
+   ON table_name FOR ALL
+   USING (auth.uid() = user_id);
+   ```
+
+3. **Type Safety**
+   - Generate TypeScript types from database schema
+   - Use generated types for all database operations
+   - Keep types in sync with schema changes
+
+4. **Real-time Subscriptions**
+   - Use for live updates where appropriate
+   - Clean up subscriptions in useEffect cleanup
+
+## Code Quality Standards
+
+### TypeScript
+- **Strict Mode**: Always enabled, no `any` types
+- **Explicit Types**: Define interfaces for all props and return types
+- **Type Inference**: Let TypeScript infer when obvious
+- **Naming**: Use PascalCase for types/interfaces, camelCase for variables
+
+### Component Structure
+```typescript
+// Server Component (default)
+interface PageProps {
+  params: { id: string }
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export default async function Page({ params, searchParams }: PageProps) {
+  const data = await fetchData()
+  return <div>{data}</div>
+}
+
+// Client Component
+'use client'
+
+interface ComponentProps {
+  title: string
+  onAction: () => void
+}
+
+export function Component({ title, onAction }: ComponentProps) {
+  return <button onClick={onAction}>{title}</button>
+}
+```
+
+### Error Handling
+1. **Server Actions**
+   ```typescript
+   'use server'
+   
+   export async function createReading(formData: FormData) {
+     try {
+       const validated = schema.parse(Object.fromEntries(formData))
+       const { data, error } = await supabase.from('readings').insert(validated)
+       
+       if (error) throw error
+       
+       revalidatePath('/dashboard')
+       return { success: true, data }
+     } catch (error) {
+       return { 
+         success: false, 
+         error: error instanceof Error ? error.message : 'Unknown error' 
+       }
+     }
+   }
+   ```
+
+2. **Error Boundaries**
+   - Implement at route segment level (error.tsx)
+   - Provide recovery options
+   - Log errors for monitoring
+
+### Accessibility (WCAG 2.1 AA)
+1. **Semantic HTML**
+   - Use proper heading hierarchy (h1 → h2 → h3)
+   - Use `<button>` for actions, `<a>` for navigation
+   - Use `<form>` for all form submissions
+
+2. **ARIA Labels**
+   - Add `aria-label` for icon-only buttons
+   - Use `aria-describedby` for form field hints
+   - Implement `aria-live` for dynamic content
+
+3. **Keyboard Navigation**
+   - All interactive elements must be keyboard accessible
+   - Implement focus management for modals/dialogs
+   - Visible focus indicators (outline)
+
+4. **Color Contrast**
+   - Minimum 4.5:1 for normal text
+   - Minimum 3:1 for large text
+   - Don't rely on color alone for information
+
+5. **Touch Targets**
+   - Minimum 44x44px for mobile
+   - Adequate spacing between interactive elements
+
+### Performance Optimization
+1. **React Optimization**
+   - Use `React.memo()` for expensive components
+   - Use `useMemo()` for expensive calculations
+   - Use `useCallback()` for stable function references
+
+2. **Image Optimization**
+   - Use Next.js `<Image>` component
+   - Specify width/height or fill
+   - Use appropriate formats (WebP)
+
+3. **Code Splitting**
+   - Use dynamic imports for large components
+   - Lazy load non-critical features
+
+4. **Core Web Vitals**
+   - Target LCP < 2.5s
+   - Target FID < 100ms
+   - Target CLS < 0.1
+
+## File Structure
+```
+app/
+├── (auth)/
+│   ├── login/
+│   ├── signup/
+│   └── forgot-password/
+├── (dashboard)/
+│   ├── dashboard/
+│   ├── log-bp/
+│   ├── log-diet-exercise/
+│   └── profile/
+├── actions/
+│   ├── bp-readings.ts
+│   ├── diet-logs.ts
+│   └── exercise-logs.ts
+├── api/
+│   └── auth/
+├── layout.tsx
+├── page.tsx
+└── error.tsx
+
+components/
+├── ui/          # shadcn/ui components
+├── forms/       # Form components
+├── charts/      # Chart components
+└── layout/      # Layout components
+
+lib/
+├── supabase/
+│   ├── client.ts
+│   ├── server.ts
+│   └── middleware.ts
+├── validations/ # Zod schemas
+└── utils.ts
+
+hooks/
+├── use-bp-readings.ts
+├── use-user.ts
+└── use-analytics.ts
+
+types/
+├── database.types.ts  # Generated from Supabase
+└── index.ts
+```
+
+## Security Guidelines
+1. **Input Validation**: Validate all user input with Zod
+2. **SQL Injection**: Use Supabase query builder, never raw SQL with user input
+3. **XSS Prevention**: React escapes by default, be careful with dangerouslySetInnerHTML
+4. **CSRF Protection**: Server Actions have built-in CSRF protection
+5. **Rate Limiting**: Implement on Server Actions for sensitive operations
+6. **Environment Variables**: Never expose secrets to client
+
+## MCP Server Usage
+- **Context7**: Consult for latest library patterns and best practices
+- **Supabase**: Use for database operations, migrations, and schema management
+
+## Testing Requirements
+1. **Manual Testing**: Test with keyboard only, test with screen reader
+2. **Browser Testing**: Chrome, Firefox, Safari, Edge
+3. **Device Testing**: Mobile (iOS/Android), Tablet, Desktop
+4. **Accessibility**: Run Lighthouse accessibility audit (score > 90)
+
+## Git Commit Guidelines
+- Use conventional commits: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`
+- Write descriptive commit messages
+- Keep commits atomic and focused
+
+## Healthcare App Considerations
+1. **Data Privacy**: Treat all health data as sensitive
+2. **User Safety**: Include disclaimers about medical advice
+3. **Data Accuracy**: Validate BP readings for realistic ranges
+4. **Compliance**: Follow healthcare data best practices
+5. **User Guidance**: Provide educational content about BP management
+
+## UI/UX Principles
+1. **Calming Design**: Use soft blues and greens for healthcare context
+2. **Clear Hierarchy**: Important information should be prominent
+3. **Helpful Feedback**: Show success/error states clearly
+4. **Progressive Disclosure**: Don't overwhelm with too much at once
+5. **Consistent Patterns**: Use same patterns throughout app
+6. **Loading States**: Always show loading indicators for async operations
+7. **Empty States**: Design beautiful empty states for new users
+
+## Remember
+- Prioritize user safety and accessibility
+- Write clean, readable, maintainable code
+- Follow the principle of least surprise
+- Document complex logic
+- Keep components small and focused
+- Test thoroughly before marking tasks complete
+
