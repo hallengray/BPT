@@ -28,7 +28,7 @@ interface MedicationWithStats extends MedicationLog {
 }
 
 export const metadata: Metadata = {
-  title: 'Medications | BP Tracker',
+  title: 'Medications',
   description: 'Manage your medications and track adherence',
 }
 

@@ -143,3 +143,4 @@ function InsightCard({ insight }: InsightCardProps) {
 }
 
 
+

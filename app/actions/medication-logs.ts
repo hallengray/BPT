@@ -77,6 +77,7 @@ export async function createMedication(
 
   revalidatePath('/medications')
   revalidatePath('/dashboard')
+  revalidatePath('/quick-log')
 
   return {
     success: true,

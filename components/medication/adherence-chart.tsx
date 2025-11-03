@@ -257,3 +257,4 @@ export function AdherenceChart({ doses, days = 30, medicationName }: AdherenceCh
 }
 
 
+

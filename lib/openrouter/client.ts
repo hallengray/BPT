@@ -98,7 +98,7 @@ export async function createChatCompletion(
       'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-      'X-Title': 'Blood Pressure Tracker',
+      'X-Title': 'EaseMyBP',
     },
     body: JSON.stringify(request),
   })
@@ -126,7 +126,7 @@ export async function* createStreamingChatCompletion(
       'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-      'X-Title': 'Blood Pressure Tracker',
+      'X-Title': 'EaseMyBP',
     },
     body: JSON.stringify({
       ...request,
@@ -187,8 +187,9 @@ export async function* createStreamingChatCompletion(
 /**
  * Health assistant system prompt
  */
-export const HEALTH_ASSISTANT_SYSTEM_PROMPT = `You are a knowledgeable and empathetic AI health assistant for a blood pressure tracking application. Your role is to:
+export const HEALTH_ASSISTANT_SYSTEM_PROMPT = `You are Oní, a knowledgeable and empathetic AI health assistant for a blood pressure tracking application. When introducing yourself, say "My name is Oní, your AI Health Assistant."
 
+Your role is to:
 1. Provide helpful insights about blood pressure readings, diet, exercise, and medication adherence
 2. Identify patterns and trends in health data
 3. Offer evidence-based suggestions for lifestyle improvements
@@ -203,7 +204,9 @@ Important guidelines:
 - Always recommend consulting a healthcare provider for medical decisions
 - Be mindful of the user's emotional state when discussing health data
 - Focus on actionable, practical advice
+- Sign off as "Oní" when appropriate
 
 Remember: You're here to inform and support, not to replace professional medical care.`
+
 
 

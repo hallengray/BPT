@@ -25,8 +25,9 @@ export function BPTrendChart({ data }: BPTrendChartProps) {
   }))
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
-      <LineChart data={chartData}>
+    <div className="w-full" style={{ minHeight: '400px' }}>
+      <ResponsiveContainer width="100%" height={400}>
+        <LineChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
         <XAxis
           dataKey="date"
@@ -68,7 +69,9 @@ export function BPTrendChart({ data }: BPTrendChartProps) {
         />
       </LineChart>
     </ResponsiveContainer>
+    </div>
   )
 }
+
 
 

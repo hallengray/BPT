@@ -11,25 +11,25 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Blood Pressure Tracker',
-    template: '%s | Blood Pressure Tracker',
+    default: 'EaseMyBP',
+    template: '%s | EaseMyBP',
   },
   description:
     'Track your blood pressure, diet, and exercise to maintain a healthy lifestyle.',
   keywords: ['blood pressure', 'health', 'tracking', 'diet', 'exercise', 'wellness'],
-  authors: [{ name: 'Blood Pressure Tracker Team' }],
-  creator: 'Blood Pressure Tracker',
+  authors: [{ name: 'EaseMyBP Team' }],
+  creator: 'EaseMyBP',
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: 'https://bpt.example.com',
-    title: 'Blood Pressure Tracker',
+    title: 'EaseMyBP',
     description: 'Track your blood pressure, diet, and exercise to maintain a healthy lifestyle.',
-    siteName: 'Blood Pressure Tracker',
+    siteName: 'EaseMyBP',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Blood Pressure Tracker',
+    title: 'EaseMyBP',
     description: 'Track your blood pressure, diet, and exercise to maintain a healthy lifestyle.',
   },
   robots: {

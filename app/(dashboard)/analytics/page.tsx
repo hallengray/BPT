@@ -17,7 +17,7 @@ import {
 } from '@/app/actions/analytics'
 
 export const metadata = {
-  title: 'Analytics | Blood Pressure Tracker',
+  title: 'Analytics',
   description: 'View correlations between your blood pressure, diet, exercise, and medications',
 }
 

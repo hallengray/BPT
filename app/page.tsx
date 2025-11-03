@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { GradientButton } from '@/components/ui/gradient-button'
 import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardHeader, GlassCardTitle } from '@/components/ui/glass-card'
@@ -15,22 +16,21 @@ export default function Home() {
         
         <div className="relative z-10 mx-auto max-w-5xl text-center">
           <div className="mb-8 flex justify-center animate-fade-in">
-            <div className="rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-1 shadow-lg animate-pulse-glow">
-              <div className="rounded-full bg-white/90 p-4 dark:bg-gray-900/90">
-                <Heart className="h-16 w-16 text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-purple-600" fill="url(#heartGradient)" />
-                <svg width="0" height="0">
-                  <defs>
-                    <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#3b82f6" />
-                      <stop offset="100%" stopColor="#9333ea" />
-                    </linearGradient>
-                  </defs>
-                </svg>
+            <div className="relative h-32 w-32 rounded-full bg-gradient-to-br from-amber-500/20 to-sky-500/20 p-2 shadow-lg animate-pulse-glow">
+              <div className="relative h-full w-full rounded-full bg-white/90 dark:bg-gray-900/90 p-4 flex items-center justify-center">
+                <Image
+                  src="/generated-image.png"
+                  alt="EaseMyBP Logo"
+                  width={96}
+                  height={96}
+                  className="object-contain"
+                  priority
+                />
               </div>
             </div>
           </div>
-          <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl animate-fade-in bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Blood Pressure Tracker
+          <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl animate-fade-in bg-gradient-to-r from-amber-600 via-amber-500 to-sky-500 bg-clip-text text-transparent">
+            EaseMyBP
           </h1>
           <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground sm:text-xl animate-fade-in" style={{ animationDelay: '0.1s' }}>
             Take control of your health with AI-powered insights. Track your blood pressure, monitor your diet, log your exercise, and get personalized recommendations.
@@ -68,7 +68,7 @@ export default function Home() {
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
               Everything You Need to{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-amber-600 to-sky-500 bg-clip-text text-transparent">
                 Stay Healthy
               </span>
             </h2>
@@ -171,7 +171,7 @@ export default function Home() {
           <div className="mb-6 flex justify-center">
             <Heart className="h-8 w-8 text-primary" />
           </div>
-          <p className="text-sm font-medium">Blood Pressure Tracker © {new Date().getFullYear()}</p>
+          <p className="text-sm font-medium">EaseMyBP © {new Date().getFullYear()}</p>
           <p className="mt-4 text-xs text-muted-foreground">
             <strong>Medical Disclaimer:</strong> This application is for informational and educational purposes only. 
             It is not intended to be a substitute for professional medical advice, diagnosis, or treatment. 

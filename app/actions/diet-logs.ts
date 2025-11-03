@@ -67,7 +67,7 @@ export async function createDietLog(
     }
   }
 
-  revalidatePath('/log-diet-exercise')
+  revalidatePath('/quick-log')
   revalidatePath('/dashboard')
 
   return {
@@ -128,7 +128,8 @@ export async function deleteDietLog(id: string): Promise<ActionResponse> {
     }
   }
 
-  revalidatePath('/log-diet-exercise')
+  revalidatePath('/quick-log')
+  revalidatePath('/dashboard')
   return { success: true }
 }
 

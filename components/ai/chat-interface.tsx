@@ -12,9 +12,10 @@ import { ChatMessage } from './chat-message'
 import { ChatInput } from './chat-input'
 import { GlassCard, GlassCardHeader, GlassCardTitle, GlassCardContent } from '@/components/ui/glass-card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle, Sparkles } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import { chatWithAI } from '@/app/actions/ai-assistant'
 import type { ChatMessage as ChatMessageType } from '@/types'
+import Image from 'next/image'
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessageType[]>([])
@@ -76,11 +77,21 @@ export function ChatInterface() {
   }
 
   return (
-    <GlassCard className="flex h-[600px] flex-col">
-      <GlassCardHeader>
-        <GlassCardTitle className="flex items-center gap-2">
-          <Sparkles className="h-6 w-6 text-primary" />
-          AI Health Assistant
+    <GlassCard className="flex h-[700px] flex-col shadow-xl" hover glow>
+      <GlassCardHeader className="bg-gradient-to-r from-amber-500/10 via-amber-400/10 to-sky-500/10 dark:from-amber-800/10 dark:via-amber-700/10 dark:to-sky-700/10 border-b">
+        <GlassCardTitle className="flex items-center gap-3">
+          <div className="relative h-10 w-10 rounded-xl overflow-hidden ring-2 ring-amber-500/20 dark:ring-amber-600/20">
+            <Image 
+              src="/generated-image (1).png" 
+              alt="Oní"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div>
+            <div className="text-lg font-bold">Chat with Oní</div>
+            <div className="text-xs text-muted-foreground font-normal">Your AI Health Assistant</div>
+          </div>
         </GlassCardTitle>
       </GlassCardHeader>
 
@@ -103,12 +114,17 @@ export function ChatInterface() {
         >
           {messages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-              <div className="rounded-full bg-primary/10 p-6">
-                <Sparkles className="h-12 w-12 text-primary" />
+              <div className="relative h-24 w-24 rounded-2xl overflow-hidden shadow-xl">
+                <Image 
+                  src="/generated-image (1).png" 
+                  alt="Oní"
+                  fill
+                  className="object-cover"
+                />
               </div>
               <div className="space-y-2">
                 <h3 className="text-lg font-semibold">
-                  Welcome to Your AI Health Assistant
+                  Hi! I&apos;m Oní, your AI Health Assistant
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   Ask me anything about your blood pressure, diet, exercise, or general health.
@@ -145,5 +161,6 @@ export function ChatInterface() {
     </GlassCard>
   )
 }
+
 
 

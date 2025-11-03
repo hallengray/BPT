@@ -11,8 +11,8 @@ import {
 import { Heart } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Sign Up | Blood Pressure Tracker',
-  description: 'Create your Blood Pressure Tracker account',
+  title: 'Sign Up',
+  description: 'Create your EaseMyBP account',
 }
 
 export default function SignupPage() {
@@ -66,5 +66,6 @@ export default function SignupPage() {
     </div>
   )
 }
+
 
 

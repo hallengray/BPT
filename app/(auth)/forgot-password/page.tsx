@@ -11,8 +11,8 @@ import {
 import { Heart } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Forgot Password | Blood Pressure Tracker',
-  description: 'Reset your Blood Pressure Tracker password',
+  title: 'Forgot Password',
+  description: 'Reset your EaseMyBP password',
 }
 
 export default function ForgotPasswordPage() {
@@ -45,5 +45,6 @@ export default function ForgotPasswordPage() {
     </div>
   )
 }
+
 
 

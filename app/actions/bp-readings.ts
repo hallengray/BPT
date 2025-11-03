@@ -77,6 +77,7 @@ export async function createBPReading(
   }
 
   revalidatePath('/dashboard')
+  revalidatePath('/quick-log')
   return {
     success: true,
     data: data as unknown as BloodPressureReading,
@@ -136,6 +137,7 @@ export async function deleteBPReading(id: string): Promise<ActionResponse> {
   }
 
   revalidatePath('/dashboard')
+  revalidatePath('/quick-log')
   return { success: true }
 }
 

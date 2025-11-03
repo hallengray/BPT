@@ -1,4 +1,4 @@
-# Blood Pressure Tracker
+# EaseMyBP
 
 **Status**: 🟢 **Production Ready** (pending manual testing)
 
