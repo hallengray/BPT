@@ -71,3 +71,4 @@ export function BPTrendChart({ data }: BPTrendChartProps) {
   )
 }
 
+
