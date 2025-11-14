@@ -1,5 +1,16 @@
 import { z } from 'zod'
 
+const datetimeLocalRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/
+const isValidDatetime = (value: string) =>
+  datetimeLocalRegex.test(value) || !Number.isNaN(Date.parse(value))
+
+const optionalDatetime = () =>
+  z
+    .string()
+    .refine((value) => value === '' || isValidDatetime(value), {
+      message: 'End date must be in ISO format (yyyy-MM-ddThh:mm)',
+    })
+
 export const medicationFormSchema = z.object({
   medicationName: z
     .string()
@@ -9,7 +20,7 @@ export const medicationFormSchema = z.object({
     .string()
     .min(1, 'Dosage is required')
     .max(100, 'Dosage must be less than 100 characters')
-    .regex(/^[\d\s\w.,-]+$/, 'Invalid dosage format'),
+    .regex(/^[\d\s\w\.,-]+$/, 'Invalid dosage format'),
   frequency: z.enum(
     ['once_daily', 'twice_daily', 'three_times_daily', 'as_needed', 'weekly', 'other'],
     { errorMap: () => ({ message: 'Please select a valid frequency' }) }
@@ -19,8 +30,13 @@ export const medicationFormSchema = z.object({
     .min(1, 'At least one time is required')
     .max(4, 'Maximum 4 times per day'),
   notes: z.string().max(500, 'Notes must be less than 500 characters').optional(),
-  startDate: z.string().min(1, 'Start date is required'),
-  endDate: z.string().min(1, 'End date must be a valid datetime').optional(),
+  startDate: z
+    .string()
+    .min(1, 'Start date is required')
+    .refine(isValidDatetime, {
+      message: 'Start date must be in ISO format (yyyy-MM-ddThh:mm)',
+    }),
+  endDate: optionalDatetime().optional(),
 })
 
 export const doseTrackingSchema = z.object({
@@ -32,9 +48,3 @@ export const doseTrackingSchema = z.object({
 
 export type MedicationFormData = z.infer<typeof medicationFormSchema>
 export type DoseTrackingData = z.infer<typeof doseTrackingSchema>
-
-
-
-
-
-
