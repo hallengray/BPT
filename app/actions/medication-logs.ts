@@ -51,6 +51,28 @@ export async function createMedication(
   const { medicationName, dosage, frequency, timeOfDay, notes, startDate, endDate } =
     validatedFields.data
 
+  const startDateObj = new Date(startDate)
+  if (Number.isNaN(startDateObj.getTime())) {
+    return {
+      success: false,
+      error: 'Invalid start date',
+    }
+  }
+
+  const validatedStartDate = startDateObj.toISOString()
+
+  let validatedEndDate: string | null = null
+  if (endDate) {
+    const endDateObj = new Date(endDate)
+    if (Number.isNaN(endDateObj.getTime())) {
+      return {
+        success: false,
+        error: 'Invalid end date',
+      }
+    }
+    validatedEndDate = endDateObj.toISOString()
+  }
+
   const { data, error } = await supabase
     .from('medication_logs')
     .insert({
@@ -60,8 +82,8 @@ export async function createMedication(
       frequency,
       time_of_day: timeOfDay,
       notes: notes || null,
-      start_date: startDate,
-      end_date: endDate || null,
+      start_date: validatedStartDate,
+      end_date: validatedEndDate,
       is_active: true,
     } as never)
     .select()

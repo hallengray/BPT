@@ -22,15 +22,20 @@ function SubmitButton() {
   )
 }
 
-export function BPReadingForm() {
+interface BPReadingFormProps {
+  onSuccess?: () => void
+}
+
+export function BPReadingForm({ onSuccess }: BPReadingFormProps = {}) {
   const [state, formAction] = useActionState(createBPReading, { success: false })
 
   // Show success toast
   useEffect(() => {
     if (state?.success) {
       toast.success('Blood pressure reading saved successfully!')
+      onSuccess?.()
     }
-  }, [state?.success])
+  }, [state?.success, onSuccess])
 
   // Get current date/time for default value
   const now = new Date()

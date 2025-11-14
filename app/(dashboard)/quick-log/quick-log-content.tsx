@@ -1,17 +1,48 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BPReadingForm } from '@/components/forms/bp-reading-form'
 import { DietLogForm } from '@/components/forms/diet-log-form'
 import { ExerciseLogForm } from '@/components/forms/exercise-log-form'
 import { MedicationForm } from '@/components/forms/medication-form'
+import { RecentLogsList } from '@/components/quick-log/recent-logs-list'
 import { Heart, Utensils, Dumbbell, Pill } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getRecentLogs } from '@/app/actions/quick-log'
+import type { RecentLogs } from '@/app/actions/quick-log'
 
 export function QuickLogContent() {
   const [activeTab, setActiveTab] = useState('bp')
+  const [recentLogs, setRecentLogs] = useState<RecentLogs>({
+    bloodPressure: [],
+    diet: [],
+    exercise: [],
+    medications: [],
+  })
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Fetch recent logs on mount and when tab changes
+  useEffect(() => {
+    const fetchLogs = async () => {
+      setIsLoading(true)
+      const result = await getRecentLogs()
+      if (result.success && result.data) {
+        setRecentLogs(result.data)
+      }
+      setIsLoading(false)
+    }
+    fetchLogs()
+  }, [])
+
+  // Refresh logs after successful form submission
+  const handleLogSuccess = async () => {
+    const result = await getRecentLogs()
+    if (result.success && result.data) {
+      setRecentLogs(result.data)
+    }
+  }
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -78,9 +109,11 @@ export function QuickLogContent() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <BPReadingForm />
+            <BPReadingForm onSuccess={handleLogSuccess} />
           </CardContent>
         </Card>
+        
+        {!isLoading && <RecentLogsList logs={recentLogs} activeTab={activeTab} />}
       </TabsContent>
 
       <TabsContent value="diet" className="mt-6">
@@ -95,9 +128,11 @@ export function QuickLogContent() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <DietLogForm />
+            <DietLogForm onSuccess={handleLogSuccess} />
           </CardContent>
         </Card>
+        
+        {!isLoading && <RecentLogsList logs={recentLogs} activeTab={activeTab} />}
       </TabsContent>
 
       <TabsContent value="exercise" className="mt-6">
@@ -112,9 +147,11 @@ export function QuickLogContent() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ExerciseLogForm />
+            <ExerciseLogForm onSuccess={handleLogSuccess} />
           </CardContent>
         </Card>
+        
+        {!isLoading && <RecentLogsList logs={recentLogs} activeTab={activeTab} />}
       </TabsContent>
 
       <TabsContent value="medication" className="mt-6">
@@ -129,9 +166,11 @@ export function QuickLogContent() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <MedicationForm />
+            <MedicationForm onSuccess={handleLogSuccess} />
           </CardContent>
         </Card>
+        
+        {!isLoading && <RecentLogsList logs={recentLogs} activeTab={activeTab} />}
       </TabsContent>
     </Tabs>
   )

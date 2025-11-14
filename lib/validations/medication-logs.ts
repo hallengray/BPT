@@ -19,8 +19,8 @@ export const medicationFormSchema = z.object({
     .min(1, 'At least one time is required')
     .max(4, 'Maximum 4 times per day'),
   notes: z.string().max(500, 'Notes must be less than 500 characters').optional(),
-  startDate: z.string().datetime(),
-  endDate: z.string().datetime().optional(),
+  startDate: z.string().min(1, 'Start date is required'),
+  endDate: z.string().min(1, 'End date must be a valid datetime').optional(),
 })
 
 export const doseTrackingSchema = z.object({
@@ -32,6 +32,9 @@ export const doseTrackingSchema = z.object({
 
 export type MedicationFormData = z.infer<typeof medicationFormSchema>
 export type DoseTrackingData = z.infer<typeof doseTrackingSchema>
+
+
+
 
 
 

@@ -29,7 +29,11 @@ function SubmitButton() {
   )
 }
 
-export function DietLogForm() {
+interface DietLogFormProps {
+  onSuccess?: () => void
+}
+
+export function DietLogForm({ onSuccess }: DietLogFormProps = {}) {
   const formRef = useRef<HTMLFormElement>(null)
   const [state, formAction] = useActionState(createDietLog, { success: false })
 
@@ -37,8 +41,9 @@ export function DietLogForm() {
     if (state?.success) {
       toast.success('Diet log saved successfully!')
       formRef.current?.reset()
+      onSuccess?.()
     }
-  }, [state?.success])
+  }, [state?.success, onSuccess])
 
   const now = new Date()
   const defaultDateTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
@@ -129,6 +134,9 @@ export function DietLogForm() {
     </form>
   )
 }
+
+
+
 
 
 
