@@ -51,9 +51,10 @@ export function DoseQuickLog({ doses, className }: DoseQuickLogProps) {
   })
 
   const handleDoseAction = useCallback(async (dose: DoseWithMedication, wasTaken: boolean) => {
-    startTransition(async () => {
-      setOptimisticDoses({ id: dose.id, action: wasTaken ? 'take' : 'skip' })
+    // Update optimistic state immediately for instant UI feedback
+    setOptimisticDoses({ id: dose.id, action: wasTaken ? 'take' : 'skip' })
 
+    startTransition(async () => {
       const formData = new FormData()
       formData.append('doseId', dose.id)
       formData.append('wasTaken', wasTaken.toString())
@@ -249,4 +250,3 @@ const DoseItem = memo(function DoseItem({ dose, status, onTake, onSkip, isPendin
     prevProps.status === nextProps.status
   )
 })
-
