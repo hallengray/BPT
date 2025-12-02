@@ -51,11 +51,11 @@ export function DoseQuickLog({ doses, className }: DoseQuickLogProps) {
   })
 
   const handleDoseAction = useCallback(async (dose: DoseWithMedication, wasTaken: boolean) => {
-    setOptimisticDoses({ id: dose.id, action: wasTaken ? 'take' : 'skip' })
-
     startTransition(async () => {
+      setOptimisticDoses({ id: dose.id, action: wasTaken ? 'take' : 'skip' })
+
       const formData = new FormData()
-      formData.append('medicationLogId', dose.medication_log_id)
+      formData.append('doseId', dose.id)
       formData.append('wasTaken', wasTaken.toString())
       formData.append('takenAt', new Date().toISOString())
 

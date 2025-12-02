@@ -40,10 +40,13 @@ export const medicationFormSchema = z.object({
 })
 
 export const doseTrackingSchema = z.object({
-  medicationLogId: z.string().uuid(),
+  doseId: z.string().uuid().optional(), // For updating existing scheduled doses
+  medicationLogId: z.string().uuid().optional(), // For creating new ad-hoc doses
   wasTaken: z.boolean(),
   takenAt: z.string().datetime().optional(),
   notes: z.string().max(200, 'Notes must be less than 200 characters').optional(),
+}).refine((data) => data.doseId || data.medicationLogId, {
+  message: 'Either doseId or medicationLogId must be provided',
 })
 
 export type MedicationFormData = z.infer<typeof medicationFormSchema>
