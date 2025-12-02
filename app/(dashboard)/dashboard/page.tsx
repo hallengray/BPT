@@ -5,6 +5,9 @@ import { BPTrendChart } from '@/components/charts/bp-trend-chart'
 import { StatCard } from '@/components/charts/stat-card'
 import { AnalyticsPreview } from '@/components/charts/analytics-preview'
 import { QuickLogPrompt } from '@/components/dashboard/quick-log-prompt'
+import { PendingDosesWidget } from '@/components/dashboard/pending-doses-widget'
+import { SmartRemindersServer } from '@/components/dashboard/smart-reminders-server'
+import { StreakWidget } from '@/components/dashboard/streak-widget'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ShimmerSkeleton } from '@/components/ui/shimmer-skeleton'
@@ -180,11 +183,20 @@ export default async function DashboardPage() {
       {/* Quick Log Prompt */}
       <QuickLogPrompt hasRecentLogs={recentLogs} />
 
-      {/* Statistics Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Smart Reminders */}
+      <SmartRemindersServer />
+
+      {/* Pending Medications */}
+      <PendingDosesWidget />
+
+      {/* Statistics Cards & Streak */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Suspense fallback={<StatsLoading />}>
           <DashboardStats />
         </Suspense>
+        <div className="sm:col-span-2 lg:col-span-1">
+          <StreakWidget />
+        </div>
       </div>
 
       {/* Analytics Preview */}

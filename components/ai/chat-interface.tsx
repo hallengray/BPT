@@ -124,12 +124,12 @@ export function ChatInterface() {
               </div>
               <div className="space-y-2">
                 <h3 className="text-lg font-semibold">
-                  Hi! I&apos;m Oní, your AI Health Assistant
+                  Hi! I'm Oní, your AI Health Assistant
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   Ask me anything about your blood pressure, diet, exercise, or general health.
                   <br />
-                  I&apos;m here to help you understand your health data and provide personalized insights.
+                  I'm here to help you understand your health data and provide personalized insights.
                 </p>
               </div>
             </div>

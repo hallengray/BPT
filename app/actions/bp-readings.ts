@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { bpReadingFormSchema } from '@/lib/validations/bp-readings'
+import { bpReadingFormSchema, isHighBP, getHighBPSuggestions } from '@/lib/validations/bp-readings'
 import type { BloodPressureReading } from '@/types'
 import type { Database } from '@/types/database.types'
 
@@ -33,18 +33,36 @@ export async function createBPReading(
   }
 
   // Validate input
-  const validatedFields = bpReadingFormSchema.safeParse({
+  const rawData = {
     systolic: formData.get('systolic'),
     diastolic: formData.get('diastolic'),
     pulse: formData.get('pulse'),
     notes: formData.get('notes') || undefined,
     measuredAt: formData.get('measuredAt'),
-  })
+  }
+
+  const validatedFields = bpReadingFormSchema.safeParse(rawData)
 
   if (!validatedFields.success) {
+    const error = validatedFields.error.errors[0]
+    
+    // If it's a high BP notes requirement error, provide helpful suggestions
+    if (error.path.includes('notes')) {
+      const systolicValue = Number(rawData.systolic)
+      const diastolicValue = Number(rawData.diastolic)
+      
+      if (isHighBP(systolicValue, diastolicValue)) {
+        const suggestions = getHighBPSuggestions()
+        return {
+          success: false,
+          error: `${error.message}\n\nConsider noting:\n• ${suggestions.slice(0, 3).join('\n• ')}`,
+        }
+      }
+    }
+    
     return {
       success: false,
-      error: validatedFields.error.errors[0].message,
+      error: error.message,
     }
   }
 

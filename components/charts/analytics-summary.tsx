@@ -1,9 +1,11 @@
 'use client'
 
-import { Heart, Activity, Utensils, Pill, TrendingDown, TrendingUp } from 'lucide-react'
+import { Heart, Activity, Utensils, Pill, TrendingDown, TrendingUp, ArrowRight, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { GlassCard, GlassCardContent } from '@/components/ui/glass-card'
 import { StatCounter } from '@/components/ui/stat-counter'
 import { cn } from '@/lib/utils'
+import { calculateBPTrend } from '@/lib/analytics-utils'
+import type { BloodPressureReading } from '@/types'
 
 interface AnalyticsSummaryProps {
   avgSystolic: number
@@ -12,6 +14,7 @@ interface AnalyticsSummaryProps {
   totalMeals: number
   medicationAdherence: number
   dataPoints: number
+  readings?: BloodPressureReading[]
   className?: string
 }
 
@@ -22,6 +25,7 @@ export function AnalyticsSummary({
   totalMeals,
   medicationAdherence,
   dataPoints,
+  readings = [],
   className,
 }: AnalyticsSummaryProps) {
   const getBPStatus = (systolic: number, diastolic: number) => {
@@ -49,17 +53,57 @@ export function AnalyticsSummary({
   const bpStatus = getBPStatus(avgSystolic, avgDiastolic)
   const adherenceStatus = getAdherenceStatus(medicationAdherence)
 
+  // Calculate BP trend if readings are provided
+  const trend = readings.length >= 5 ? calculateBPTrend(readings) : null
+  
+  const getTrendIcon = () => {
+    if (!trend) return null
+    if (trend.direction === 'improving') {
+      return <ArrowDownRight className="h-5 w-5 text-green-500" aria-label="Improving trend" />
+    } else if (trend.direction === 'worsening') {
+      return <ArrowUpRight className="h-5 w-5 text-red-500" aria-label="Worsening trend" />
+    }
+    return <ArrowRight className="h-5 w-5 text-blue-500" aria-label="Stable trend" />
+  }
+
+  const getTrendBadge = () => {
+    if (!trend) return null
+    
+    const badgeColors = {
+      improving: 'bg-green-500/20 text-green-700 dark:text-green-300 border-green-500/30',
+      worsening: 'bg-red-500/20 text-red-700 dark:text-red-300 border-red-500/30',
+      stable: 'bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/30',
+    }
+
+    return (
+      <span
+        className={cn(
+          'inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium',
+          badgeColors[trend.direction]
+        )}
+      >
+        {trend.direction.charAt(0).toUpperCase() + trend.direction.slice(1)}
+      </span>
+    )
+  }
+
+  const getProjected30DayBP = () => {
+    if (!trend) return null
+    const projected = avgSystolic + trend.projectedChange30Days
+    return Math.round(projected)
+  }
+
   return (
     <div className={cn('grid gap-4 md:grid-cols-2 lg:grid-cols-4', className)}>
       {/* Average Blood Pressure */}
-      <GlassCard className="hover-lift" hover>
+      <GlassCard className="hover-lift md:col-span-2" hover>
         <GlassCardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
               <div className="rounded-lg bg-red-500/20 p-3">
                 <Heart className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="text-sm font-medium text-muted-foreground">Avg Blood Pressure</p>
                 <div className="flex items-baseline gap-2">
                   <StatCounter
@@ -74,15 +118,34 @@ export function AnalyticsSummary({
                     duration={1000}
                   />
                 </div>
-                <p className={cn('text-xs font-medium', bpStatus.color)}>{bpStatus.status}</p>
+                <div className="mt-1 flex items-center gap-2">
+                  <p className={cn('text-xs font-medium', bpStatus.color)}>{bpStatus.status}</p>
+                  {getTrendBadge()}
+                </div>
+                {trend && (
+                  <div className="mt-2 space-y-1">
+                    <p className="text-xs text-muted-foreground">
+                      {trend.direction === 'improving' ? '↓' : trend.direction === 'worsening' ? '↑' : '→'}{' '}
+                      {Math.abs(trend.weeklyChange).toFixed(1)} mmHg per week
+                    </p>
+                    {getProjected30DayBP() && (
+                      <p className="text-xs text-muted-foreground">
+                        Projected 30-day BP: <span className="font-semibold">{getProjected30DayBP()}/{avgDiastolic}</span>
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
-            {bpStatus.trend === 'up' && (
-              <TrendingUp className="h-5 w-5 text-red-500" aria-label="Trending up" />
-            )}
-            {bpStatus.trend === 'down' && (
-              <TrendingDown className="h-5 w-5 text-green-500" aria-label="Trending down" />
-            )}
+            <div className="flex flex-col items-end gap-2">
+              {getTrendIcon()}
+              {bpStatus.trend === 'up' && !trend && (
+                <TrendingUp className="h-5 w-5 text-red-500" aria-label="Trending up" />
+              )}
+              {bpStatus.trend === 'down' && !trend && (
+                <TrendingDown className="h-5 w-5 text-green-500" aria-label="Trending down" />
+              )}
+            </div>
           </div>
         </GlassCardContent>
       </GlassCard>
@@ -200,6 +263,10 @@ export function AnalyticsSummary({
     </div>
   )
 }
+
+
+
+
 
 
 

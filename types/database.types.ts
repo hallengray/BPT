@@ -58,6 +58,8 @@ export type Database = {
           logged_at: string
           meal_type: string
           notes: string | null
+          sodium_level: string | null
+          sodium_mg: number | null
           updated_at: string | null
           user_id: string
         }
@@ -68,6 +70,8 @@ export type Database = {
           logged_at?: string
           meal_type: string
           notes?: string | null
+          sodium_level?: string | null
+          sodium_mg?: number | null
           updated_at?: string | null
           user_id: string
         }
@@ -78,6 +82,8 @@ export type Database = {
           logged_at?: string
           meal_type?: string
           notes?: string | null
+          sodium_level?: string | null
+          sodium_mg?: number | null
           updated_at?: string | null
           user_id?: string
         }

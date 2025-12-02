@@ -6,6 +6,9 @@ import {
   calculateExerciseBPCorrelation,
   calculateDietBPCorrelation,
   calculateMedicationBPCorrelation,
+  calculateRestDayImpact,
+  calculateBPTrend,
+  generatePredictiveInsights,
 } from '@/lib/analytics-utils'
 
 type BloodPressureReading = Database['public']['Tables']['blood_pressure_readings']['Row']
@@ -222,6 +225,12 @@ export async function getCorrelationInsights(
     insights.push(exerciseCorr.insight)
   }
 
+  // Rest day impact analysis
+  const restDayImpact = calculateRestDayImpact(bloodPressure, exercise)
+  if (restDayImpact) {
+    insights.push(restDayImpact)
+  }
+
   // Diet correlation
   const dietCorr = calculateDietBPCorrelation(bloodPressure, diet)
   if (dietCorr.insight) {
@@ -233,6 +242,24 @@ export async function getCorrelationInsights(
   if (medicationCorr.insight) {
     insights.push(medicationCorr.insight)
   }
+
+  // Add trend analysis insight
+  if (bloodPressure.length >= 5) {
+    const trend = calculateBPTrend(bloodPressure)
+    if (trend.direction !== 'stable') {
+      insights.push({
+        type: trend.direction === 'improving' ? 'positive' : 'negative',
+        title: `BP Trend: ${trend.direction.charAt(0).toUpperCase() + trend.direction.slice(1)}`,
+        description: `Your BP is ${trend.direction} by ${Math.abs(trend.weeklyChange).toFixed(1)} mmHg per week. At this rate, your BP could change by ${Math.abs(trend.projectedChange30Days).toFixed(0)} mmHg in 30 days.`,
+        confidence: trend.confidence,
+        metric: trend.weeklyChange,
+      })
+    }
+  }
+
+  // Generate predictive insights
+  const predictiveInsights = generatePredictiveInsights(healthDataResponse.data)
+  insights.push(...predictiveInsights)
 
   // Add general insights based on data availability
   if (bloodPressure.length === 0) {
@@ -254,6 +281,17 @@ export async function getCorrelationInsights(
       confidence: 'high',
     })
   }
+
+  // Sort insights by importance: negative > positive > neutral
+  // Within same type, sort by confidence: high > medium > low
+  const typeOrder = { negative: 0, positive: 1, neutral: 2 }
+  const confidenceOrder = { high: 0, medium: 1, low: 2 }
+  
+  insights.sort((a, b) => {
+    const typeCompare = typeOrder[a.type] - typeOrder[b.type]
+    if (typeCompare !== 0) return typeCompare
+    return confidenceOrder[a.confidence] - confidenceOrder[b.confidence]
+  })
 
   return {
     success: true,

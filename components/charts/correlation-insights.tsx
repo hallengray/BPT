@@ -1,6 +1,7 @@
 'use client'
 
-import { TrendingDown, TrendingUp, Minus, AlertCircle, CheckCircle, Info } from 'lucide-react'
+import { memo } from 'react'
+import { TrendingDown, TrendingUp, Minus, AlertCircle, CheckCircle, Info, Sparkles } from 'lucide-react'
 import type { CorrelationInsight } from '@/types'
 import { GlassCard, GlassCardContent, GlassCardHeader, GlassCardTitle } from '@/components/ui/glass-card'
 import { cn } from '@/lib/utils'
@@ -38,8 +39,15 @@ interface InsightCardProps {
   insight: CorrelationInsight
 }
 
-function InsightCard({ insight }: InsightCardProps) {
+const InsightCard = memo(function InsightCard({ insight }: InsightCardProps) {
+  // Check if this is a predictive insight based on title
+  const isPredictive = insight.title.toLowerCase().includes('prediction')
+  
   const getIcon = () => {
+    if (isPredictive) {
+      return <Sparkles className="h-5 w-5" />
+    }
+    
     switch (insight.type) {
       case 'positive':
         return <CheckCircle className="h-5 w-5" />
@@ -61,6 +69,15 @@ function InsightCard({ insight }: InsightCardProps) {
   }
 
   const getColorClasses = () => {
+    if (isPredictive) {
+      return {
+        border: 'border-l-purple-500',
+        icon: 'text-purple-600 dark:text-purple-400',
+        bg: 'bg-purple-500/10',
+        badge: 'bg-purple-500/20 text-purple-700 dark:text-purple-300',
+      }
+    }
+    
     switch (insight.type) {
       case 'positive':
         return {
@@ -119,12 +136,21 @@ function InsightCard({ insight }: InsightCardProps) {
               <div className={colors.icon}>{getIcon()}</div>
             </div>
             <div className="flex-1">
-              <GlassCardTitle className="text-lg">{insight.title}</GlassCardTitle>
+              <div className="flex items-center gap-2">
+                <GlassCardTitle className="text-lg">{insight.title}</GlassCardTitle>
+                {isPredictive && (
+                  <span className="inline-flex items-center rounded-full bg-purple-500/20 px-2 py-0.5 text-xs font-medium text-purple-700 dark:text-purple-300">
+                    Prediction
+                  </span>
+                )}
+              </div>
               {insight.metric !== undefined && (
                 <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
                   {getTrendIcon()}
                   <span>
-                    {insight.type === 'positive' || insight.type === 'negative'
+                    {isPredictive
+                      ? `${Math.abs(insight.metric).toFixed(1)} mmHg impact`
+                      : insight.type === 'positive' || insight.type === 'negative'
                       ? `${Math.abs(insight.metric).toFixed(0)}% correlation`
                       : `${insight.metric.toFixed(0)}%`}
                   </span>
@@ -140,7 +166,19 @@ function InsightCard({ insight }: InsightCardProps) {
       </GlassCardContent>
     </GlassCard>
   )
-}
+}, (prevProps, nextProps) => {
+  // Custom comparison: only re-render if insight content changes
+  return (
+    prevProps.insight.title === nextProps.insight.title &&
+    prevProps.insight.description === nextProps.insight.description &&
+    prevProps.insight.metric === nextProps.insight.metric &&
+    prevProps.insight.confidence === nextProps.insight.confidence
+  )
+})
+
+
+
+
 
 
 

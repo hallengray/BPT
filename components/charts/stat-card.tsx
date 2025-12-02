@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LucideIcon, TrendingDown, TrendingUp } from 'lucide-react'
 
@@ -9,7 +10,7 @@ interface StatCardProps {
   trend?: 'up' | 'down' | 'stable'
 }
 
-export function StatCard({ title, value, subtitle, icon: Icon, trend }: StatCardProps) {
+export const StatCard = memo(function StatCard({ title, value, subtitle, icon: Icon, trend }: StatCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -35,5 +36,5 @@ export function StatCard({ title, value, subtitle, icon: Icon, trend }: StatCard
       </CardContent>
     </Card>
   )
-}
+})
 

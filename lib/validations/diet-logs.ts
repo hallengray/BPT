@@ -19,10 +19,24 @@ export const dietLogFormSchema = z.object({
   description: z.string().min(3, 'Description must be at least 3 characters'),
   notes: z.string().max(500).optional(),
   loggedAt: z.string().min(1, 'Date and time are required'),
+  sodiumLevel: z.enum(['low', 'medium', 'high', 'unknown']).optional(),
+  sodiumMg: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || (!isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 10000),
+      {
+        message: 'Sodium must be between 0 and 10000 mg',
+      }
+    ),
 })
 
 export type DietLogInput = z.infer<typeof dietLogSchema>
 export type DietLogFormInput = z.infer<typeof dietLogFormSchema>
+
+
+
+
 
 
 

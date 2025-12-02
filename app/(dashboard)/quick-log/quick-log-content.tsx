@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BPReadingForm } from '@/components/forms/bp-reading-form'
@@ -8,6 +8,7 @@ import { DietLogForm } from '@/components/forms/diet-log-form'
 import { ExerciseLogForm } from '@/components/forms/exercise-log-form'
 import { MedicationForm } from '@/components/forms/medication-form'
 import { RecentLogsList } from '@/components/quick-log/recent-logs-list'
+import { MedicationDosesClient } from './medication-doses-client'
 import { Heart, Utensils, Dumbbell, Pill } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getRecentLogs } from '@/app/actions/quick-log'
@@ -37,12 +38,12 @@ export function QuickLogContent() {
   }, [])
 
   // Refresh logs after successful form submission
-  const handleLogSuccess = async () => {
+  const handleLogSuccess = useCallback(async () => {
     const result = await getRecentLogs()
     if (result.success && result.data) {
       setRecentLogs(result.data)
     }
-  }
+  }, [])
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -155,24 +156,51 @@ export function QuickLogContent() {
       </TabsContent>
 
       <TabsContent value="medication" className="mt-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Pill className="h-5 w-5 text-blue-500" />
-              Medication
-            </CardTitle>
-            <CardDescription>
-              Add a new medication to your list
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <MedicationForm onSuccess={handleLogSuccess} />
-          </CardContent>
-        </Card>
+        <MedicationQuickLogTab onSuccess={handleLogSuccess} />
         
         {!isLoading && <RecentLogsList logs={recentLogs} activeTab={activeTab} />}
       </TabsContent>
     </Tabs>
   )
 }
+
+// Separate component for medication tab with dose logging
+function MedicationQuickLogTab({ onSuccess }: { onSuccess: () => void }) {
+  return (
+    <div className="space-y-4">
+      {/* Today's Doses Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Pill className="h-5 w-5 text-blue-500" />
+            Today&apos;s Medications
+          </CardTitle>
+          <CardDescription>
+            Quick log your medication doses
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <MedicationDosesClient onSuccess={onSuccess} />
+        </CardContent>
+      </Card>
+
+      {/* Add New Medication Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Pill className="h-5 w-5 text-purple-500" />
+            Add New Medication
+          </CardTitle>
+          <CardDescription>
+            Add a medication to your list
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <MedicationForm onSuccess={onSuccess} />
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 

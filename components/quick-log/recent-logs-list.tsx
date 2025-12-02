@@ -265,3 +265,4 @@ export function RecentLogsList({ logs, activeTab }: RecentLogsListProps) {
   )
 }
 
+
