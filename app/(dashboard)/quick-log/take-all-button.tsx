@@ -29,7 +29,7 @@ export function TakeAllButton({ doses, onSuccess }: TakeAllButtonProps) {
       const results = await Promise.all(
         doses.map(async (dose) => {
           const formData = new FormData()
-          formData.append('doseId', dose.id)
+          formData.append('medicationLogId', dose.medication_log_id)
           formData.append('wasTaken', 'true')
           formData.append('takenAt', new Date().toISOString())
           
@@ -78,4 +78,3 @@ export function TakeAllButton({ doses, onSuccess }: TakeAllButtonProps) {
     </Button>
   )
 }
-

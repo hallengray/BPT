@@ -56,7 +56,7 @@ export function DoseQuickLog({ doses, className }: DoseQuickLogProps) {
 
     startTransition(async () => {
       const formData = new FormData()
-      formData.append('doseId', dose.id)
+      formData.append('medicationLogId', dose.medication_log_id)
       formData.append('wasTaken', wasTaken.toString())
       formData.append('takenAt', new Date().toISOString())
 

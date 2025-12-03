@@ -178,8 +178,7 @@ export async function recordDose(
   }
 
   const validatedFields = doseTrackingSchema.safeParse({
-    doseId: formData.get('doseId') || undefined,
-    medicationLogId: formData.get('medicationLogId') || undefined,
+    medicationLogId: formData.get('medicationLogId'),
     wasTaken: formData.get('wasTaken') === 'true',
     takenAt: formData.get('takenAt') || new Date().toISOString(),
     notes: formData.get('notes') || undefined,
@@ -192,47 +191,22 @@ export async function recordDose(
     }
   }
 
-  const { doseId, medicationLogId, wasTaken, takenAt, notes } = validatedFields.data
+  const { medicationLogId, wasTaken, takenAt, notes } = validatedFields.data
 
-  let data: MedicationDose | null = null
-  let error: Error | null = null
+  const { data, error } = await supabase
+    .from('medication_doses')
+    .insert({
+      medication_log_id: medicationLogId,
+      user_id: user.id,
+      scheduled_time: takenAt || new Date().toISOString(),
+      taken_at: wasTaken ? (takenAt || new Date().toISOString()) : null,
+      was_taken: wasTaken,
+      notes: notes || null,
+    } as never)
+    .select()
+    .single()
 
-  if (doseId) {
-    // UPDATE existing scheduled dose (prevents duplicate recordings)
-    const result = await supabase
-      .from('medication_doses')
-      .update({
-        was_taken: wasTaken,
-        taken_at: wasTaken ? (takenAt || new Date().toISOString()) : null,
-        notes: notes || null,
-      } as never)
-      .eq('id', doseId)
-      .eq('user_id', user.id)
-      .select()
-      .single()
-    
-    data = result.data
-    error = result.error
-  } else if (medicationLogId) {
-    // CREATE new ad-hoc dose record
-    const result = await supabase
-      .from('medication_doses')
-      .insert({
-        medication_log_id: medicationLogId,
-        user_id: user.id,
-        scheduled_time: takenAt || new Date().toISOString(),
-        taken_at: wasTaken ? (takenAt || new Date().toISOString()) : null,
-        was_taken: wasTaken,
-        notes: notes || null,
-      } as never)
-      .select()
-      .single()
-    
-    data = result.data
-    error = result.error
-  }
-
-  if (error || !data) {
+  if (error) {
     console.error('Dose tracking error:', error)
     return {
       success: false,
@@ -242,7 +216,6 @@ export async function recordDose(
 
   revalidatePath('/medications')
   revalidatePath('/dashboard')
-  revalidatePath('/quick-log')
 
   return {
     success: true,
