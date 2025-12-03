@@ -17,6 +17,7 @@ import {
 import { LayoutDashboard, TrendingUp, Sparkles, PenSquare, LogOut, User as UserIcon, Settings, CreditCard, ChevronDown, HeartPulse } from 'lucide-react'
 import { Protest_Revolution } from 'next/font/google'
 import { cn } from '@/lib/utils'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 interface DashboardNavProps {
   user: User
@@ -102,6 +103,9 @@ export function DashboardNav({ user, signOutAction }: DashboardNavProps) {
 
         {/* Right: Account */}
         <div className="ml-auto flex items-center space-x-3">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+          
           {/* Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

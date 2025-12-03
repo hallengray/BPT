@@ -16,6 +16,7 @@ import {
 import { LogOut, User as UserIcon, Settings, CreditCard, HeartPulse } from 'lucide-react'
 import { Protest_Revolution } from 'next/font/google'
 import { cn } from '@/lib/utils'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 const protest = Protest_Revolution({ subsets: ['latin'], weight: '400', variable: '--font-protest-revolution' })
 
@@ -63,8 +64,11 @@ export function MobileHeader({ user, signOutAction }: MobileHeaderProps) {
           </span>
         </Link>
 
-        {/* Right: Account */}
-        <DropdownMenu>
+        {/* Right: Theme Toggle & Account */}
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          
+          <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
               variant="ghost" 
@@ -112,6 +116,7 @@ export function MobileHeader({ user, signOutAction }: MobileHeaderProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        </div>
       </div>
     </header>
   )
