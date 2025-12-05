@@ -235,4 +235,20 @@
       box-shadow: 0 0 20px 10px rgba(245, 158, 11, 0);
     }
   }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
+/* Float animation utility */
+@layer utilities {
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
 }

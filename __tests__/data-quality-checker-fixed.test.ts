@@ -62,6 +62,8 @@ describe('Data Quality Checker', () => {
         notes: null,
         created_at: new Date().toISOString(),
         updated_at: null,
+        sodium_level: null,
+        sodium_mg: null,
       })),
       exercise: Array(14).fill(null).map((_, i) => ({
         id: `ex-${i}`,
@@ -142,5 +144,6 @@ describe('Data Quality Checker', () => {
     expect(suggestions.some(s => s.includes('blood pressure'))).toBe(true)
   })
 })
+
 
 

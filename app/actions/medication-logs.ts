@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { medicationFormSchema, doseTrackingSchema } from '@/lib/validations/medication-logs'
+import { generateScheduledDoses } from '@/lib/medication-scheduler'
 import type { Database } from '@/types/database.types'
 
 type MedicationLog = Database['public']['Tables']['medication_logs']['Row']
@@ -51,6 +52,9 @@ export async function createMedication(
   const { medicationName, dosage, frequency, timeOfDay, notes, startDate, endDate } =
     validatedFields.data
 
+  // Insert medication log
+  // Note: Using type assertion due to Supabase type inference limitations
+  // Data is validated by Zod schema above
   const { data, error } = await supabase
     .from('medication_logs')
     .insert({
@@ -59,20 +63,51 @@ export async function createMedication(
       dosage,
       frequency,
       time_of_day: timeOfDay,
-      notes: notes || null,
+      notes: notes ?? null,
       start_date: startDate,
-      end_date: endDate || null,
+      end_date: endDate ?? null,
       is_active: true,
-    } as never)
+    } as any)
     .select()
     .single()
 
-  if (error) {
+  if (error || !data) {
     console.error('Medication creation error:', error)
     return {
       success: false,
       error: 'Failed to add medication. Please try again.',
     }
+  }
+
+  const medicationData = data as MedicationLog
+
+  // Generate scheduled doses for the next 30 days
+  try {
+    const scheduledDoses = generateScheduledDoses(
+      medicationData.id,
+      user.id,
+      frequency,
+      timeOfDay,
+      new Date(startDate),
+      endDate ? new Date(endDate) : null,
+      30 // Generate 30 days worth of doses
+    )
+
+    // Insert all scheduled doses into the database
+    if (scheduledDoses.length > 0) {
+      const { error: dosesError } = await supabase
+        .from('medication_doses')
+        .insert(scheduledDoses as any)
+
+      if (dosesError) {
+        console.error('Dose generation error:', dosesError)
+        // Don't fail the whole operation, just log the error
+        // The medication was created successfully
+      }
+    }
+  } catch (doseError) {
+    console.error('Dose generation error:', doseError)
+    // Continue - medication was created successfully
   }
 
   revalidatePath('/medications')
@@ -81,7 +116,7 @@ export async function createMedication(
 
   return {
     success: true,
-    data,
+    data: medicationData,
   }
 }
 
@@ -132,6 +167,9 @@ export async function updateMedication(
     }
   }
 
+  // Update medication log following Supabase best practices
+  // Note: Using type assertion due to Supabase type inference limitations
+  // Data is validated by the function parameter type above
   const { data, error } = await supabase
     .from('medication_logs')
     .update(updates as never)
@@ -178,7 +216,7 @@ export async function recordDose(
   }
 
   const validatedFields = doseTrackingSchema.safeParse({
-    medicationLogId: formData.get('medicationLogId'),
+    doseId: formData.get('doseId'),
     wasTaken: formData.get('wasTaken') === 'true',
     takenAt: formData.get('takenAt') || new Date().toISOString(),
     notes: formData.get('notes') || undefined,
@@ -191,18 +229,20 @@ export async function recordDose(
     }
   }
 
-  const { medicationLogId, wasTaken, takenAt, notes } = validatedFields.data
+  const { doseId, wasTaken, takenAt, notes } = validatedFields.data
 
+  // UPDATE the existing scheduled dose record (not INSERT)
+  // Following Supabase best practices for type-safe updates
+  // Note: Using type assertion due to Supabase type inference limitations
   const { data, error } = await supabase
     .from('medication_doses')
-    .insert({
-      medication_log_id: medicationLogId,
-      user_id: user.id,
-      scheduled_time: takenAt || new Date().toISOString(),
-      taken_at: wasTaken ? (takenAt || new Date().toISOString()) : null,
+    .update({
       was_taken: wasTaken,
-      notes: notes || null,
+      taken_at: wasTaken ? (takenAt ?? new Date().toISOString()) : null,
+      notes: notes ?? null,
     } as never)
+    .eq('id', doseId)
+    .eq('user_id', user.id)
     .select()
     .single()
 
@@ -216,6 +256,7 @@ export async function recordDose(
 
   revalidatePath('/medications')
   revalidatePath('/dashboard')
+  revalidatePath('/quick-log')
 
   return {
     success: true,
@@ -340,5 +381,38 @@ export async function getTodaysPendingDoses(): Promise<
       data: [],
     }
   }
+}
+
+export async function deleteMedicationDose(id: string): Promise<ActionResponse> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return {
+      success: false,
+      error: 'You must be logged in',
+    }
+  }
+
+  const { error } = await supabase
+    .from('medication_doses')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) {
+    return {
+      success: false,
+      error: 'Failed to delete medication dose',
+    }
+  }
+
+  revalidatePath('/medications')
+  revalidatePath('/dashboard')
+  revalidatePath('/quick-log')
+  return { success: true }
 }
 

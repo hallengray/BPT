@@ -13,8 +13,10 @@ import {
   GlassCardTitle,
 } from '@/components/ui/glass-card'
 import { cn } from '@/lib/utils'
-import { recordDose } from '@/app/actions/medication-logs'
+import { recordDose, deleteMedicationDose } from '@/app/actions/medication-logs'
 import { toast } from 'sonner'
+import { DeleteConfirmationDialog } from '@/components/ui/delete-confirmation-dialog'
+import { useRouter } from 'next/navigation'
 
 interface DoseWithMedication {
   id: string
@@ -34,6 +36,7 @@ interface DoseQuickLogProps {
 type OptimisticDose = DoseWithMedication & { optimisticStatus?: 'taking' | 'skipping' }
 
 export function DoseQuickLog({ doses, className }: DoseQuickLogProps) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [optimisticDoses, setOptimisticDoses] = useOptimistic<OptimisticDose[], {
     id: string
@@ -50,13 +53,13 @@ export function DoseQuickLog({ doses, className }: DoseQuickLogProps) {
     )
   })
 
-  const handleDoseAction = useCallback(async (dose: DoseWithMedication, wasTaken: boolean) => {
-    // Update optimistic state immediately for instant UI feedback
-    setOptimisticDoses({ id: dose.id, action: wasTaken ? 'take' : 'skip' })
-
+  const handleDoseAction = useCallback((dose: DoseWithMedication, wasTaken: boolean) => {
     startTransition(async () => {
+      // Update optimistic state inside transition for instant UI feedback
+      setOptimisticDoses({ id: dose.id, action: wasTaken ? 'take' : 'skip' })
+
       const formData = new FormData()
-      formData.append('medicationLogId', dose.medication_log_id)
+      formData.append('doseId', dose.id)
       formData.append('wasTaken', wasTaken.toString())
       formData.append('takenAt', new Date().toISOString())
 
@@ -69,6 +72,16 @@ export function DoseQuickLog({ doses, className }: DoseQuickLogProps) {
       }
     })
   }, [setOptimisticDoses])
+
+  const handleDeleteDose = useCallback(async (id: string): Promise<void> => {
+    const result = await deleteMedicationDose(id)
+    if (result.success) {
+      toast.success('Dose record deleted')
+      router.refresh()
+    } else {
+      toast.error(result.error || 'Failed to delete dose')
+    }
+  }, [router])
 
   const now = new Date()
   const pendingDoses = optimisticDoses.filter((d) => !d.was_taken && !d.optimisticStatus)
@@ -98,7 +111,7 @@ export function DoseQuickLog({ doses, className }: DoseQuickLogProps) {
       <GlassCardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <GlassCardTitle>Today's Medications</GlassCardTitle>
+            <GlassCardTitle>Today&apos;s Medications</GlassCardTitle>
             <GlassCardDescription>
               {completedDoses.length} of {doses.length} doses taken
             </GlassCardDescription>
@@ -143,6 +156,7 @@ export function DoseQuickLog({ doses, className }: DoseQuickLogProps) {
             dose={dose}
             status="completed"
             isPending={isPending}
+            onDelete={async () => await handleDeleteDose(dose.id)}
           />
         ))}
 
@@ -171,10 +185,11 @@ interface DoseItemProps {
   status: 'overdue' | 'upcoming' | 'completed'
   onTake?: () => void
   onSkip?: () => void
+  onDelete?: () => Promise<void>
   isPending?: boolean
 }
 
-const DoseItem = memo(function DoseItem({ dose, status, onTake, onSkip, isPending }: DoseItemProps) {
+const DoseItem = memo(function DoseItem({ dose, status, onTake, onSkip, onDelete, isPending }: DoseItemProps) {
   const scheduledTime = new Date(dose.scheduled_time)
   const isOptimistic = !!dose.optimisticStatus
 
@@ -212,7 +227,7 @@ const DoseItem = memo(function DoseItem({ dose, status, onTake, onSkip, isPendin
         </div>
       </div>
 
-      {status !== 'completed' && (
+      {status !== 'completed' ? (
         <div className="flex gap-2">
           <Button
             size="sm"
@@ -237,7 +252,13 @@ const DoseItem = memo(function DoseItem({ dose, status, onTake, onSkip, isPendin
             Skip
           </Button>
         </div>
-      )}
+      ) : onDelete ? (
+        <DeleteConfirmationDialog
+          itemType="Dose Record"
+          itemDescription={`Delete dose record for ${dose.medication_name} (${dose.dosage}) taken at ${format(scheduledTime, 'h:mm a')}?`}
+          onConfirm={onDelete}
+        />
+      ) : null}
     </div>
   )
 }, (prevProps, nextProps) => {

@@ -5,19 +5,34 @@ import {
 } from '@/lib/analytics-utils'
 import type { BloodPressureReading, ExerciseLog, DietLog } from '@/types'
 
-// Helper to create test BP reading with all required fields
-const createBPReading = (overrides: Partial<BloodPressureReading>): BloodPressureReading => ({
-  id: 'test-id',
-  systolic: 120,
-  diastolic: 80,
-  pulse: 70,
-  measured_at: new Date().toISOString(),
-  user_id: 'test',
-  notes: null,
-  created_at: new Date().toISOString(),
-  updated_at: null,
-  ...overrides,
-})
+// Helper to create test BP reading with all required fields (kept for future use)
+// const createBPReading = (overrides: Partial<BloodPressureReading>): BloodPressureReading => ({
+//   id: 'test-id',
+//   systolic: 120,
+//   diastolic: 80,
+//   pulse: 70,
+//   measured_at: new Date().toISOString(),
+//   user_id: 'test',
+//   notes: null,
+//   created_at: new Date().toISOString(),
+//   updated_at: new Date().toISOString(),
+//   ...overrides,
+// })
+
+// Helper to create test diet log with all required fields (kept for future use)
+// const createDietLog = (overrides: Partial<DietLog>): DietLog => ({
+//   id: 'test-id',
+//   meal_type: 'breakfast',
+//   description: 'Test meal',
+//   logged_at: new Date().toISOString(),
+//   user_id: 'test',
+//   notes: null,
+//   created_at: new Date().toISOString(),
+//   updated_at: new Date().toISOString(),
+//   sodium_level: null,
+//   sodium_mg: null,
+//   ...overrides,
+// })
 
 describe('Analytics Utils', () => {
   describe('calculateBPTrend', () => {
@@ -55,11 +70,11 @@ describe('Analytics Utils', () => {
     
     test('detects stable trend', () => {
       const readings: BloodPressureReading[] = [
-        { id: '1', systolic: 130, diastolic: 80, pulse: 70, measured_at: '2024-01-01T08:00:00Z', user_id: 'test', notes: null },
-        { id: '2', systolic: 131, diastolic: 81, pulse: 70, measured_at: '2024-01-02T08:00:00Z', user_id: 'test', notes: null },
-        { id: '3', systolic: 130, diastolic: 80, pulse: 70, measured_at: '2024-01-03T08:00:00Z', user_id: 'test', notes: null },
-        { id: '4', systolic: 129, diastolic: 79, pulse: 70, measured_at: '2024-01-04T08:00:00Z', user_id: 'test', notes: null },
-        { id: '5', systolic: 130, diastolic: 80, pulse: 70, measured_at: '2024-01-05T08:00:00Z', user_id: 'test', notes: null },
+        { id: '1', systolic: 130, diastolic: 80, pulse: 70, measured_at: '2024-01-01T08:00:00Z', user_id: 'test', notes: null, created_at: '2024-01-01T08:00:00Z', updated_at: null },
+        { id: '2', systolic: 131, diastolic: 81, pulse: 70, measured_at: '2024-01-02T08:00:00Z', user_id: 'test', notes: null, created_at: '2024-01-02T08:00:00Z', updated_at: null },
+        { id: '3', systolic: 130, diastolic: 80, pulse: 70, measured_at: '2024-01-03T08:00:00Z', user_id: 'test', notes: null, created_at: '2024-01-03T08:00:00Z', updated_at: null },
+        { id: '4', systolic: 129, diastolic: 79, pulse: 70, measured_at: '2024-01-04T08:00:00Z', user_id: 'test', notes: null, created_at: '2024-01-04T08:00:00Z', updated_at: null },
+        { id: '5', systolic: 130, diastolic: 80, pulse: 70, measured_at: '2024-01-05T08:00:00Z', user_id: 'test', notes: null, created_at: '2024-01-05T08:00:00Z', updated_at: null },
       ]
       
       const trend = calculateBPTrend(readings)
@@ -149,8 +164,8 @@ describe('Analytics Utils', () => {
       ]
 
       const diet: DietLog[] = [
-        { id: '1', meal_type: 'breakfast', description: 'Oatmeal', logged_at: thisWeekDate.toISOString(), user_id: 'test', notes: null, created_at: thisWeekDate.toISOString(), updated_at: null },
-        { id: '2', meal_type: 'lunch', description: 'Salad', logged_at: lastWeekDate.toISOString(), user_id: 'test', notes: null, created_at: lastWeekDate.toISOString(), updated_at: null },
+        { id: '1', meal_type: 'breakfast', description: 'Oatmeal', logged_at: thisWeekDate.toISOString(), user_id: 'test', notes: null, created_at: thisWeekDate.toISOString(), updated_at: null, sodium_level: null, sodium_mg: null },
+        { id: '2', meal_type: 'lunch', description: 'Salad', logged_at: lastWeekDate.toISOString(), user_id: 'test', notes: null, created_at: lastWeekDate.toISOString(), updated_at: null, sodium_level: null, sodium_mg: null },
       ]
 
       const comparison = calculateWeekOverWeekComparison(readings, exercise, diet)

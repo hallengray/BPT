@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { LayoutDashboard, TrendingUp, Sparkles, PenSquare, LogOut, User as UserIcon, Settings, CreditCard, ChevronDown, HeartPulse } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, Sparkles, PenSquare, LogOut, User as UserIcon, Settings, CreditCard, ChevronDown, HeartPulse, History } from 'lucide-react'
 import { Protest_Revolution } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -29,6 +29,7 @@ const protest = Protest_Revolution({ subsets: ['latin'], weight: '400', variable
 const navItems = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard, color: 'text-blue-600' },
   { href: '/analytics', label: 'Progress', icon: TrendingUp, color: 'text-green-600' },
+  { href: '/history', label: 'History', icon: History, color: 'text-indigo-600' },
   { href: '/ai-assistant', label: 'AI Assistant', icon: Sparkles, color: 'text-pink-600' },
   { href: '/quick-log', label: 'Quick Log', icon: PenSquare, color: 'text-purple-600' },
 ]

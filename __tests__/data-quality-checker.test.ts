@@ -10,9 +10,9 @@ import type { BloodPressureReading, UnifiedHealthData } from '@/types'
 describe('Data Quality Checker', () => {
   test('finds high BP readings without notes', () => {
     const readings: BloodPressureReading[] = [
-      { id: '1', systolic: 145, diastolic: 95, pulse: 70, measured_at: '2024-01-01T08:00:00Z', user_id: 'test', notes: null },
-      { id: '2', systolic: 130, diastolic: 85, pulse: 70, measured_at: '2024-01-02T08:00:00Z', user_id: 'test', notes: 'feeling good' },
-      { id: '3', systolic: 150, diastolic: 100, pulse: 75, measured_at: '2024-01-03T08:00:00Z', user_id: 'test', notes: '' },
+      { id: '1', systolic: 145, diastolic: 95, pulse: 70, measured_at: '2024-01-01T08:00:00Z', user_id: 'test', notes: null, created_at: '2024-01-01T08:00:00Z', updated_at: null },
+      { id: '2', systolic: 130, diastolic: 85, pulse: 70, measured_at: '2024-01-02T08:00:00Z', user_id: 'test', notes: 'feeling good', created_at: '2024-01-02T08:00:00Z', updated_at: null },
+      { id: '3', systolic: 150, diastolic: 100, pulse: 75, measured_at: '2024-01-03T08:00:00Z', user_id: 'test', notes: '', created_at: '2024-01-03T08:00:00Z', updated_at: null },
     ]
     
     const highBPWithoutNotes = findHighBPWithoutNotes(readings)
@@ -24,8 +24,8 @@ describe('Data Quality Checker', () => {
 
   test('requires at least 10 characters in notes', () => {
     const readings: BloodPressureReading[] = [
-      { id: '1', systolic: 145, diastolic: 95, pulse: 70, measured_at: '2024-01-01T08:00:00Z', user_id: 'test', notes: 'short' },
-      { id: '2', systolic: 145, diastolic: 95, pulse: 70, measured_at: '2024-01-02T08:00:00Z', user_id: 'test', notes: 'This is a longer note' },
+      { id: '1', systolic: 145, diastolic: 95, pulse: 70, measured_at: '2024-01-01T08:00:00Z', user_id: 'test', notes: 'short', created_at: '2024-01-01T08:00:00Z', updated_at: null },
+      { id: '2', systolic: 145, diastolic: 95, pulse: 70, measured_at: '2024-01-02T08:00:00Z', user_id: 'test', notes: 'This is a longer note', created_at: '2024-01-02T08:00:00Z', updated_at: null },
     ]
     
     const highBPWithoutNotes = findHighBPWithoutNotes(readings)
@@ -43,7 +43,9 @@ describe('Data Quality Checker', () => {
         pulse: 70,
         measured_at: new Date(today.getTime() - i * 24 * 60 * 60 * 1000).toISOString(),
         user_id: 'test',
-        notes: null
+        notes: null,
+        created_at: new Date(today.getTime() - i * 24 * 60 * 60 * 1000).toISOString(),
+        updated_at: null
       })),
       diet: Array(42).fill(null).map((_, i) => ({
         id: `diet-${i}`,
@@ -51,16 +53,22 @@ describe('Data Quality Checker', () => {
         description: 'Meal',
         logged_at: new Date(today.getTime() - i * 12 * 60 * 60 * 1000).toISOString(),
         user_id: 'test',
-        notes: null
+        notes: null,
+        created_at: new Date(today.getTime() - i * 12 * 60 * 60 * 1000).toISOString(),
+        updated_at: null,
+        sodium_level: null,
+        sodium_mg: null
       })),
       exercise: Array(14).fill(null).map((_, i) => ({
         id: `ex-${i}`,
-        type: 'walking',
+        activity_type: 'walking',
         duration_minutes: 30,
         intensity: 'moderate',
         logged_at: new Date(today.getTime() - i * 24 * 60 * 60 * 1000).toISOString(),
         user_id: 'test',
-        notes: null
+        notes: null,
+        created_at: new Date(today.getTime() - i * 24 * 60 * 60 * 1000).toISOString(),
+        updated_at: null
       })),
       medications: [],
       medicationDoses: Array(20).fill(null).map((_, i) => ({
@@ -70,7 +78,8 @@ describe('Data Quality Checker', () => {
         scheduled_time: new Date(today.getTime() - i * 12 * 60 * 60 * 1000).toISOString(),
         taken_at: new Date(today.getTime() - i * 12 * 60 * 60 * 1000).toISOString(),
         was_taken: true,
-        notes: null
+        notes: null,
+        created_at: new Date(today.getTime() - i * 12 * 60 * 60 * 1000).toISOString()
       }))
     }
     
@@ -84,9 +93,9 @@ describe('Data Quality Checker', () => {
   test('calculates streak correctly', () => {
     const today = new Date()
     const readings: BloodPressureReading[] = [
-      { id: '1', systolic: 130, diastolic: 80, pulse: 70, measured_at: today.toISOString(), user_id: 'test', notes: null },
-      { id: '2', systolic: 130, diastolic: 80, pulse: 70, measured_at: new Date(today.getTime() - 24*60*60*1000).toISOString(), user_id: 'test', notes: null },
-      { id: '3', systolic: 130, diastolic: 80, pulse: 70, measured_at: new Date(today.getTime() - 2*24*60*60*1000).toISOString(), user_id: 'test', notes: null },
+      { id: '1', systolic: 130, diastolic: 80, pulse: 70, measured_at: today.toISOString(), user_id: 'test', notes: null, created_at: today.toISOString(), updated_at: null },
+      { id: '2', systolic: 130, diastolic: 80, pulse: 70, measured_at: new Date(today.getTime() - 24*60*60*1000).toISOString(), user_id: 'test', notes: null, created_at: new Date(today.getTime() - 24*60*60*1000).toISOString(), updated_at: null },
+      { id: '3', systolic: 130, diastolic: 80, pulse: 70, measured_at: new Date(today.getTime() - 2*24*60*60*1000).toISOString(), user_id: 'test', notes: null, created_at: new Date(today.getTime() - 2*24*60*60*1000).toISOString(), updated_at: null },
     ]
     
     const streak = calculateLoggingStreak(readings)
@@ -105,8 +114,8 @@ describe('Data Quality Checker', () => {
 
   test('finds BP without context', () => {
     const readings: BloodPressureReading[] = [
-      { id: '1', systolic: 130, diastolic: 80, pulse: 70, measured_at: '2024-01-01T08:00:00Z', user_id: 'test', notes: null },
-      { id: '2', systolic: 130, diastolic: 80, pulse: 70, measured_at: '2024-01-02T08:00:00Z', user_id: 'test', notes: null },
+      { id: '1', systolic: 130, diastolic: 80, pulse: 70, measured_at: '2024-01-01T08:00:00Z', user_id: 'test', notes: null, created_at: '2024-01-01T08:00:00Z', updated_at: null },
+      { id: '2', systolic: 130, diastolic: 80, pulse: 70, measured_at: '2024-01-02T08:00:00Z', user_id: 'test', notes: null, created_at: '2024-01-02T08:00:00Z', updated_at: null },
     ]
 
     const datesWithoutContext = findBPWithoutContext(readings, [], [])
@@ -129,5 +138,6 @@ describe('Data Quality Checker', () => {
     expect(suggestions.some(s => s.includes('blood pressure'))).toBe(true)
   })
 })
+
 
 

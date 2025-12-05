@@ -6,6 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import type { RecentLogs } from '@/app/actions/quick-log'
 import { cn } from '@/lib/utils'
+import { DeleteConfirmationDialog } from '@/components/ui/delete-confirmation-dialog'
+import { deleteBPReading } from '@/app/actions/bp-readings'
+import { deleteDietLog } from '@/app/actions/diet-logs'
+import { deleteExerciseLog } from '@/app/actions/exercise-logs'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 interface RecentLogsListProps {
   logs: RecentLogs
@@ -13,6 +19,8 @@ interface RecentLogsListProps {
 }
 
 export function RecentLogsList({ logs, activeTab }: RecentLogsListProps) {
+  const router = useRouter()
+
   const formatTimestamp = (timestamp: string) => {
     try {
       return formatDistanceToNow(new Date(timestamp), { addSuffix: true })
@@ -27,6 +35,36 @@ export function RecentLogsList({ logs, activeTab }: RecentLogsListProps) {
     if (systolic >= 130 || diastolic >= 80) return { label: 'Stage 1', color: 'warning' }
     if (systolic >= 120 && diastolic < 80) return { label: 'Elevated', color: 'warning' }
     return { label: 'Normal', color: 'success' }
+  }
+
+  const handleDeleteBP = async (id: string) => {
+    const result = await deleteBPReading(id)
+    if (result.success) {
+      toast.success('Blood pressure reading deleted')
+      router.refresh()
+    } else {
+      toast.error(result.error || 'Failed to delete reading')
+    }
+  }
+
+  const handleDeleteDiet = async (id: string) => {
+    const result = await deleteDietLog(id)
+    if (result.success) {
+      toast.success('Diet log deleted')
+      router.refresh()
+    } else {
+      toast.error(result.error || 'Failed to delete diet log')
+    }
+  }
+
+  const handleDeleteExercise = async (id: string) => {
+    const result = await deleteExerciseLog(id)
+    if (result.success) {
+      toast.success('Exercise log deleted')
+      router.refresh()
+    } else {
+      toast.error(result.error || 'Failed to delete exercise log')
+    }
   }
 
   // BP Logs
@@ -49,7 +87,7 @@ export function RecentLogsList({ logs, activeTab }: RecentLogsListProps) {
                   key={reading.id}
                   className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-muted/50"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-1">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-950">
                       <Heart className="h-5 w-5 text-red-600 dark:text-red-400" />
                     </div>
@@ -81,10 +119,17 @@ export function RecentLogsList({ logs, activeTab }: RecentLogsListProps) {
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">
-                      {formatTimestamp(reading.measured_at)}
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <p className="text-xs text-muted-foreground">
+                        {formatTimestamp(reading.measured_at)}
+                      </p>
+                    </div>
+                    <DeleteConfirmationDialog
+                      itemType="BP Reading"
+                      itemDescription={`Delete reading ${reading.systolic}/${reading.diastolic} mmHg from ${formatTimestamp(reading.measured_at)}?`}
+                      onConfirm={() => handleDeleteBP(reading.id)}
+                    />
                   </div>
                 </div>
               )
@@ -113,7 +158,7 @@ export function RecentLogsList({ logs, activeTab }: RecentLogsListProps) {
                 key={log.id}
                 className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-muted/50"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-1">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-950">
                     <Utensils className="h-5 w-5 text-green-600 dark:text-green-400" />
                   </div>
@@ -130,10 +175,17 @@ export function RecentLogsList({ logs, activeTab }: RecentLogsListProps) {
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">
-                    {formatTimestamp(log.logged_at)}
-                  </p>
+                <div className="flex items-center gap-2">
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">
+                      {formatTimestamp(log.logged_at)}
+                    </p>
+                  </div>
+                  <DeleteConfirmationDialog
+                    itemType="Diet Log"
+                    itemDescription={`Delete ${log.meal_type} log: "${log.description.slice(0, 50)}${log.description.length > 50 ? '...' : ''}"?`}
+                    onConfirm={() => handleDeleteDiet(log.id)}
+                  />
                 </div>
               </div>
             ))}
@@ -161,7 +213,7 @@ export function RecentLogsList({ logs, activeTab }: RecentLogsListProps) {
                 key={log.id}
                 className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-muted/50"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-1">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-950">
                     <Dumbbell className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   </div>
@@ -188,10 +240,17 @@ export function RecentLogsList({ logs, activeTab }: RecentLogsListProps) {
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">
-                    {formatTimestamp(log.logged_at)}
-                  </p>
+                <div className="flex items-center gap-2">
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">
+                      {formatTimestamp(log.logged_at)}
+                    </p>
+                  </div>
+                  <DeleteConfirmationDialog
+                    itemType="Exercise Log"
+                    itemDescription={`Delete ${log.activity_type} workout (${log.duration_minutes} min)?`}
+                    onConfirm={() => handleDeleteExercise(log.id)}
+                  />
                 </div>
               </div>
             ))}

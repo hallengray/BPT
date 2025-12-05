@@ -40,7 +40,7 @@ export const medicationFormSchema = z.object({
 })
 
 export const doseTrackingSchema = z.object({
-  medicationLogId: z.string().uuid(),
+  doseId: z.string().uuid('Dose ID is required'),
   wasTaken: z.boolean(),
   takenAt: z.string().datetime().optional(),
   notes: z.string().max(200, 'Notes must be less than 200 characters').optional(),

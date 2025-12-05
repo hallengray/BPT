@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useTransition } from 'react'
 import { format } from 'date-fns'
 import {
   GlassCard,
@@ -9,7 +9,6 @@ import {
   GlassCardHeader,
   GlassCardTitle,
 } from '@/components/ui/glass-card'
-import { GradientButton } from '@/components/ui/gradient-button'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Pill, Clock, CheckCircle, Edit, StopCircle, MoreVertical } from 'lucide-react'
@@ -19,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { recordDose, deactivateMedication } from '@/app/actions/medication-logs'
+import { deactivateMedication } from '@/app/actions/medication-logs'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import type { Database } from '@/types/database.types'
@@ -49,25 +48,11 @@ export function MedicationCard({
   onEdit,
 }: MedicationCardProps) {
   const [isPending, startTransition] = useTransition()
-  const [isRecording, setIsRecording] = useState(false)
 
   const handleMarkAsTaken = () => {
-    setIsRecording(true)
-    startTransition(async () => {
-      const formData = new FormData()
-      formData.append('medicationLogId', medication.id)
-      formData.append('wasTaken', 'true')
-      formData.append('takenAt', new Date().toISOString())
-
-      const result = await recordDose(null, formData)
-
-      if (result.success) {
-        toast.success('Dose recorded successfully!')
-      } else {
-        toast.error(result.error || 'Failed to record dose')
-      }
-      setIsRecording(false)
-    })
+    // Note: This functionality is disabled. Users should record doses via the Quick Log page
+    // where scheduled doses are properly tracked.
+    toast.info('Please use the Quick Log page to record your medication doses')
   }
 
   const handleDeactivate = () => {
@@ -198,16 +183,16 @@ export function MedicationCard({
       </GlassCardContent>
 
       <GlassCardFooter>
-        <GradientButton
-          variant="success"
+        <Button
+          variant="outline"
           size="sm"
           className="w-full"
           onClick={handleMarkAsTaken}
-          disabled={isRecording || isPending}
+          disabled={isPending}
         >
           <CheckCircle className="mr-2 h-4 w-4" />
-          {isRecording ? 'Recording...' : 'Mark as Taken'}
-        </GradientButton>
+          Record Dose (Use Quick Log)
+        </Button>
       </GlassCardFooter>
     </GlassCard>
   )

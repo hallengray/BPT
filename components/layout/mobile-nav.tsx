@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, TrendingUp, Sparkles, PenSquare, User } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, Sparkles, PenSquare, History } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -14,7 +14,7 @@ const navItems = [
   },
   { 
     href: '/analytics', 
-    label: 'Progress', 
+    label: 'Stats', 
     icon: TrendingUp, 
     color: 'from-green-500 to-emerald-600' 
   },
@@ -32,10 +32,10 @@ const navItems = [
     color: 'from-purple-500 to-purple-600' 
   },
   { 
-    href: '/profile', 
-    label: 'Profile', 
-    icon: User, 
-    color: 'from-orange-500 to-orange-600' 
+    href: '/history', 
+    label: 'History', 
+    icon: History, 
+    color: 'from-indigo-500 to-indigo-600' 
   },
 ]
 
