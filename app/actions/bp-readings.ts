@@ -44,7 +44,7 @@ export async function createBPReading(
   const validatedFields = bpReadingFormSchema.safeParse(rawData)
 
   if (!validatedFields.success) {
-    const error = validatedFields.error.errors[0]
+    const error = validatedFields.error.issues[0]
     
     // If it's a high BP notes requirement error, provide helpful suggestions
     if (error.path.includes('notes')) {

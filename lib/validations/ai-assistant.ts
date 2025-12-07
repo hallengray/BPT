@@ -34,8 +34,7 @@ export type ChatMessageInput = z.infer<typeof chatMessageSchema>
  */
 export const summaryRequestSchema = z.object({
   period: z.enum(['daily', 'weekly', 'monthly'], {
-    required_error: 'Period is required',
-    invalid_type_error: 'Period must be daily, weekly, or monthly',
+    message: 'Period must be daily, weekly, or monthly',
   }),
   date: z
     .string()
@@ -70,7 +69,7 @@ export type HealthQuestionInput = z.infer<typeof healthQuestionSchema>
 export const adviceRequestSchema = z.object({
   focus: z
     .enum(['blood_pressure', 'diet', 'exercise', 'medication', 'overall'], {
-      required_error: 'Focus area is required',
+      message: 'Focus area is required',
     })
     .describe('The health aspect to focus advice on'),
   daysToAnalyze: z

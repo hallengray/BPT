@@ -245,3 +245,4 @@ The subtle background images add **personality and depth** without overwhelming 
 - Light: `pexels-karola-g-4386466.jpg`
 - Dark: `pexels-carloscruz-artegrafia-172084181-11198232.jpg`
 
+

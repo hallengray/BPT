@@ -40,7 +40,7 @@ export async function createDietLog(
   if (!validatedFields.success) {
     return {
       success: false,
-      error: validatedFields.error.errors[0].message,
+      error: validatedFields.error.issues[0].message,
     }
   }
 

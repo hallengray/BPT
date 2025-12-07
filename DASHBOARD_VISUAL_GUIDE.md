@@ -311,3 +311,4 @@
 
 Navigate to http://localhost:3000/dashboard after logging in to see the new design in action!
 
+

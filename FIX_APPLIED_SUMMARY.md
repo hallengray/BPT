@@ -129,3 +129,4 @@ The fix follows Supabase best practices from Context7 documentation:
 
 
 
+

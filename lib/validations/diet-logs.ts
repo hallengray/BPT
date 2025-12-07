@@ -4,7 +4,7 @@ export const mealTypes = ['breakfast', 'lunch', 'dinner', 'snack', 'other'] as c
 
 export const dietLogSchema = z.object({
   mealType: z.enum(mealTypes, {
-    required_error: 'Please select a meal type',
+    message: 'Please select a meal type',
   }),
   description: z
     .string()

@@ -30,7 +30,7 @@ export async function login(
   if (!validatedFields.success) {
     return {
       success: false,
-      error: validatedFields.error.errors[0].message,
+      error: validatedFields.error.issues[0].message,
     }
   }
 
@@ -70,7 +70,7 @@ export async function signup(
   if (!validatedFields.success) {
     return {
       success: false,
-      error: validatedFields.error.errors[0].message,
+      error: validatedFields.error.issues[0].message,
     }
   }
 
@@ -130,7 +130,7 @@ export async function forgotPassword(
   if (!validatedFields.success) {
     return {
       success: false,
-      error: validatedFields.error.errors[0].message,
+      error: validatedFields.error.issues[0].message,
     }
   }
 

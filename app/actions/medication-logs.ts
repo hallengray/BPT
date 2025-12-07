@@ -45,7 +45,7 @@ export async function createMedication(
   if (!validatedFields.success) {
     return {
       success: false,
-      error: validatedFields.error.errors[0].message,
+      error: validatedFields.error.issues[0].message,
     }
   }
 
@@ -225,7 +225,7 @@ export async function recordDose(
   if (!validatedFields.success) {
     return {
       success: false,
-      error: validatedFields.error.errors[0].message,
+      error: validatedFields.error.issues[0].message,
     }
   }
 
@@ -363,7 +363,7 @@ export async function getTodaysPendingDoses(): Promise<
     }
 
     // Transform the data to include medication details
-    const transformedDoses = (doses || []).map((dose: MedicationDose & { medication_logs: { medication_name: string; dosage: string; is_active: boolean } }) => ({
+    const transformedDoses = (doses || []).map((dose: MedicationDose & { medication_logs: { medication_name: string; dosage: string; is_active: boolean | null } }) => ({
       ...dose,
       medication_name: dose.medication_logs.medication_name,
       dosage: dose.medication_logs.dosage,

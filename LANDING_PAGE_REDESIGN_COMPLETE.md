@@ -127,3 +127,4 @@ Added to `app/globals.css`:
 **Accessibility**: ✅ WCAG 2.1 AA compliant
 **Performance**: ✅ Optimized images and animations
 
+

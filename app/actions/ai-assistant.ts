@@ -167,7 +167,7 @@ export async function chatWithAI(
   if (!validatedFields.success) {
     return {
       success: false,
-      error: validatedFields.error.errors[0].message,
+      error: validatedFields.error.issues[0].message,
     }
   }
 
@@ -250,7 +250,7 @@ export async function generateHealthSummary(
   if (!validatedFields.success) {
     return {
       success: false,
-      error: validatedFields.error.errors[0].message,
+      error: validatedFields.error.issues[0].message,
     }
   }
 
@@ -384,7 +384,7 @@ export async function askHealthQuestion(
   if (!validatedFields.success) {
     return {
       success: false,
-      error: validatedFields.error.errors[0].message,
+      error: validatedFields.error.issues[0].message,
     }
   }
 
@@ -467,7 +467,7 @@ export async function getPersonalizedAdvice(
   if (!validatedFields.success) {
     return {
       success: false,
-      error: validatedFields.error.errors[0].message,
+      error: validatedFields.error.issues[0].message,
     }
   }
 
@@ -555,7 +555,7 @@ export async function streamChatWithAI(
   if (!validatedFields.success) {
     return {
       success: false,
-      error: validatedFields.error.errors[0].message,
+      error: validatedFields.error.issues[0].message,
     }
   }
 

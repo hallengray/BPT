@@ -23,7 +23,7 @@ export const medicationFormSchema = z.object({
     .regex(/^[\d\s\w\.,-]+$/, 'Invalid dosage format'),
   frequency: z.enum(
     ['once_daily', 'twice_daily', 'three_times_daily', 'as_needed', 'weekly', 'other'],
-    { errorMap: () => ({ message: 'Please select a valid frequency' }) }
+    { message: 'Please select a valid frequency' }
   ),
   timeOfDay: z
     .array(z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format'))
